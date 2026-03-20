@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WCAG 2.2 – accessibility issues</title>
+<title>WCAG 2.2 - accessibility issues, experimental page to check different A11Y frameworks</title>
 <style>
 body { font-family: Arial; padding: 20px; line-height:1.5 }
 section { margin-bottom: 30px; }
@@ -14,77 +14,168 @@ section { margin-bottom: 30px; }
 </style>
 </head>
 <body>
-<h1>WCAG 2.2 – examples of issues + problem description</h1>
+<h1>WCAG 2.2 - examples of issues + problem description</h1>
 
 <section>
 <h2>1.1.1 Non-text Content</h2>
 <p class="desc">Problem: missing alt attribute means screen readers don’t know what the image represents.</p>
-<div class="bad"><img src="https://via.placeholder.com/100"></div>
+<div class="bad-video"><img src="https://via.placeholder.com/100"></div>
+<div class="bad-audio">
+  <audio controls>
+    <source src="audio.mp3" type="audio/mpeg">
+  </audio>
+</div>
 </section>
 
 <section>
 <h2>1.2.2 Captions</h2>
-<p class="desc">Problem: no captions – deaf users cannot access audio content.</p>
+<p class="desc">Problem: no captions - deaf users cannot access audio content.</p>
 <div class="bad"><video controls src=""></video></div>
 </section>
 
 <section>
 <h2>1.3.1 Info and Relationships</h2>
-<p class="desc">Problem: missing semantics – assistive technologies cannot understand structure.</p>
-<div class="bad"><div style="font-size:24px">Fake heading</div></div>
+<p class="desc">Problem: missing semantics - assistive technologies cannot understand structure.</p>
+<div class="bad">
+  <div style="font-size:24px">Fake heading</div>
+  <p style="font-size:24px; font-weight:bold;">Another fake heading</p>
+  <span style="font-size:1.5em;">Yet another fake heading</span>
+</div>
 </section>
 
 <section>
 <h2>1.3.5 Identify Input Purpose</h2>
-<p class="desc">Problem: missing autocomplete – makes autofill and assistive tech support harder.</p>
+<p class="desc">Problem: missing autocomplete - makes autofill and assistive tech support harder.</p>
 <div class="bad"><input placeholder="First name"></div>
 </section>
 
 <section>
 <h2>1.4.3 Contrast</h2>
-<p class="desc">Problem: low contrast – users with low vision cannot read the text.</p>
-<div class="bad low-contrast">Low contrast text</div>
+<p class="desc">Problem: low contrast - users with low vision cannot read the text.</p>
+<h2>1.4.3 Contrast</h2>
+<p class="desc">Problem: low contrast - users with low vision cannot read the text.</p>
+<div class="bad">
+
+  <!-- ~3:1 contrast -->
+  <div style="color:#777; background:#fff;">Contrast ~3:1 example</div>
+
+  <!-- ~4.5:1 contrast -->
+  <div style="color:#595959; background:#fff;">Contrast ~4.5:1 example</div>
+
+  <!-- bad contrast -->
+  <div style="color:#aaa; background:#fff;">Bad contrast example</div>
+  <div style="color:#ccc; background:#fff;">Very bad contrast example</div>
+
+  <!-- default problematic buttons -->
+  <button style="color:#999; background:#eee;">Low contrast button</button>
+  <button style="color:#aaa; background:#fff;">Another bad button</button>
+
+  <!-- hover problem -->
+  <button 
+    style="color:#000; background:#fff;"
+    onmouseover="this.style.color='#aaa'"
+    onmouseout="this.style.color='#000'">
+    Hover becomes low contrast
+  </button>
+
+</div>
 </section>
 
 <section>
 <h2>1.4.4 Resize Text</h2>
-<p class="desc">Problem: text too small – difficult to enlarge and read.</p>
+<p class="desc">Problem: text too small - difficult to enlarge and read.</p>
 <div class="bad tiny">Tiny text</div>
 </section>
 
 <section>
 <h2>1.4.10 Reflow</h2>
-<p class="desc">Problem: fixed layout – requires horizontal scrolling.</p>
-<div class="bad" style="width:1200px;">Fixed width layout</div>
+<p class="desc">Problem: fixed layout - requires horizontal scrolling.</p>
+<div class="bad" style="width:200px; height:100px; overflow:scroll;">
+  <div style="width:600px; height:300px;">
+    This is a very large content area inside a very small container.
+    You need to scroll both horizontally and vertically to read everything.
+  </div>
+</div>
 </section>
 
 <section>
 <h2>2.1.1 Keyboard</h2>
-<p class="desc">Problem: no keyboard support – user cannot activate the element.</p>
+<p class="desc">Problem: no keyboard support - user cannot activate the element.</p>
 <div class="bad"><div onclick="alert('click')">Click</div></div>
 </section>
 
 <section>
 <h2>2.1.2 No Keyboard Trap</h2>
-<p class="desc">Problem: focus trap – user cannot leave the element.</p>
-<div class="bad"><input onfocus="this.blur()"></div>
+<p class="desc">Problem: focus trap - user can tab into elements but cannot leave the group.</p>
+<div class="bad">
+
+  <button id="btn1">1</button>
+  <button id="btn2">2</button>
+  <button id="btn3">3</button>
+
+  <script>
+    const buttons = [
+      document.getElementById('btn1'),
+      document.getElementById('btn2'),
+      document.getElementById('btn3')
+    ];
+
+    buttons.forEach((btn, index) => {
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const next = e.shiftKey
+            ? (index - 1 + buttons.length) % buttons.length
+            : (index + 1) % buttons.length;
+          buttons[next].focus();
+        }
+      });
+    });
+  </script>
+
+</div>
 </section>
 
 <section>
 <h2>2.2.1 Timing Adjustable</h2>
-<p class="desc">Problem: no time control – user may not finish in time.</p>
-<div class="bad"><p>Session expires in 5 seconds</p></div>
+<p class="desc">Problem: no time control - content disappears before user can react.</p>
+<div class="bad">
+  <p id="timeoutText">This message will disappear in 5 seconds</p>
+
+  <script>
+    setTimeout(() => {
+      const el = document.getElementById('timeoutText');
+      if (el) el.style.display = 'none';
+    }, 5000);
+  </script>
+</div>
 </section>
 
 <section>
 <h2>2.3.1 Seizures</h2>
-<p class="desc">Problem: flashing elements – may trigger seizures.</p>
-<div class="bad"><marquee>Flashing text</marquee></div>
+<p class="desc">Problem: flashing elements - may trigger seizures.</p>
+<div class="bad">
+  <div id="flashText">Flashing rainbow text</div>
+
+  <script>
+    const colors = ['red','orange','yellow','green','blue','indigo','violet'];
+    let i = 0;
+
+    setInterval(() => {
+      const el = document.getElementById('flashText');
+      if (el) {
+        el.style.color = colors[i % colors.length];
+        el.style.backgroundColor = colors[(i + 3) % colors.length];
+        i++;
+      }
+    }, 50); // very fast flashing
+  </script>
+</div>
 </section>
 
 <section>
 <h2>2.4.1 Bypass Blocks</h2>
-<p class="desc">Problem: no skip link – user must navigate through the entire menu.</p>
+<p class="desc">Problem: no skip link - user must navigate through the entire menu.</p>
 <div class="bad"></div>
 </section>
 
@@ -96,31 +187,31 @@ section { margin-bottom: 30px; }
 
 <section>
 <h2>2.4.4 Link Purpose</h2>
-<p class="desc">Problem: unclear link – user doesn’t know where it leads.</p>
+<p class="desc">Problem: unclear link - user doesn’t know where it leads.</p>
 <div class="bad"><a href="#">Click here</a></div>
 </section>
 
 <section>
 <h2>2.4.7 Focus Visible</h2>
-<p class="desc">Problem: no visible focus – user doesn’t know where they are.</p>
+<p class="desc">Problem: no visible focus - user doesn’t know where they are.</p>
 <div class="bad"><button class="no-focus">Button</button></div>
 </section>
 
 <section>
 <h2>2.5.3 Label in Name</h2>
-<p class="desc">Problem: label ≠ accessible name – voice control may not work correctly.</p>
+<p class="desc">Problem: label ≠ accessible name - voice control may not work correctly.</p>
 <div class="bad"><button aria-label="Submit form">Submit</button></div>
 </section>
 
 <section>
 <h2>2.5.5 Target Size</h2>
-<p class="desc">Problem: target too small – difficult to click.</p>
-<div class="bad"><button style="width:10px;height:10px"></button></div>
+<p class="desc">Problem: target too small - difficult to click.</p>
+<div class="bad" label="small_input"><button style="width:10px;height:10px"></button></div>
 </section>
 
 <section>
 <h2>2.5.7 Dragging Movements (2.2)</h2>
-<p class="desc">Problem: drag-only interaction – no alternative (e.g. click).</p>
+<p class="desc">Problem: drag-only interaction - no alternative (e.g. click).</p>
 <div class="bad"><p>Only drag interaction</p></div>
 </section>
 
@@ -132,8 +223,16 @@ section { margin-bottom: 30px; }
 
 <section>
 <h2>3.1.1 Language of Page</h2>
-<p class="desc">Problem: missing lang attribute – screen reader may use wrong language.</p>
-<div class="bad">&lt;html&gt;</div>
+<p class="desc">Problem: missing lang attribute - screen reader may use wrong language.</p>
+<div class="bad">
+
+  <p>これはダミーテキストです。意味はありませんが、日本語の文章のように見せるためのものです。</p>
+
+  <p>Αυτό είναι ένα δοκιμαστικό κείμενο χωρίς πραγματικό νόημα, που χρησιμοποιείται ως παράδειγμα.</p>
+
+  <p>Ez egy példa szöveg, amelynek nincs valódi jelentése, csak kitöltésre szolgál.</p>
+
+</div>
 </section>
 
 <section>
@@ -150,20 +249,31 @@ section { margin-bottom: 30px; }
 
 <section>
 <h2>3.3.2 Labels or Instructions</h2>
-<p class="desc">Problem: missing label – user doesn’t know what to enter.</p>
+<p class="desc">Problem: missing label - user doesn’t know what to enter.</p>
 <div class="bad"><input></div>
 </section>
 
 <section>
 <h2>4.1.2 Name, Role, Value</h2>
-<p class="desc">Problem: missing role – assistive tech cannot recognize component.</p>
+<p class="desc">Problem: missing role - assistive tech cannot recognize component.</p>
 <div class="bad"><div onclick="">Button?</div></div>
 </section>
 
 <section>
 <h2>4.1.3 Status Messages</h2>
-<p class="desc">Problem: missing aria-live – message is not announced.</p>
-<div class="bad"><div>Saved!</div></div>
+<p class="desc">Problem: status message appears dynamically but is not announced by assistive technologies.</p>
+<div class="bad">
+
+  <button onclick="showMessage()">Save</button>
+  <div id="statusMsg"></div>
+
+  <script>
+    function showMessage() {
+      document.getElementById('statusMsg').textContent = 'Saved!';
+    }
+  </script>
+
+</div>
 </section>
 
 </body>
